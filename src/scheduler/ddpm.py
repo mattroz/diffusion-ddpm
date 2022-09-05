@@ -1,5 +1,8 @@
 import torch
 import numpy as np
+
+from tqdm import tqdm
+
 from src.utils.common import broadcast
 
 
@@ -43,21 +46,22 @@ class DDPMPipeline:
         :return:
         """
         image = initial_noise
-        for timestep in range(self.num_timesteps-1, -1, -1):
-            predicted_noise = model(image, timestep)
-            beta_t = self.betas[timestep]
-            alpha_t = self.alphas[timestep]
-            alpha_hat = self.alphas_hat[timestep]
+        for timestep in tqdm(range(self.num_timesteps - 1, -1, -1)):
+            ts = torch.LongTensor([timestep]).to(model.device)
+            predicted_noise = model(image, ts)["sample"]
+            beta_t = self.betas[timestep].to(model.device)
+            alpha_t = self.alphas[timestep].to(model.device)
+            alpha_hat = self.alphas_hat[timestep].to(model.device)
 
             # Algorithm 2, step 4: calculate x_{t-1} with alphas and variance.
             # Since paper says we can use fixed variance (section 3.2, in the beginning),
             # we will calculate the one which assumes we have x0 deterministically set to one point.
-            alpha_hat_prev = self.alphas_hat[timestep - 1]
+            alpha_hat_prev = self.alphas_hat[timestep - 1].to(model.device)
             beta_t_hat = (1 - alpha_hat_prev) / (1 - alpha_hat) * beta_t
-            variance = torch.sqrt(beta_t_hat) * torch.randn(image.shape) if timestep > 0 else 0
+            variance = torch.sqrt(beta_t_hat) * torch.randn(image.shape).to(model.device) if timestep > 0 else 0
 
             image = torch.pow(alpha_t, -0.5) * (image -
-                                                (1 - alpha_hat) / torch.sqrt((1 - alpha_hat_prev)) *
+                                                beta_t / torch.sqrt((1 - alpha_hat_prev)) *
                                                 predicted_noise) + variance
         return image
 
