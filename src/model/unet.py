@@ -1,7 +1,11 @@
 import torch
 import torch.nn as nn
 
-from src.model.layers import ConvDownBlock, AttentionDownBlock, TransformerPositionalEmbedding, Bottleneck, ConvUpBlock
+from src.model.layers import ConvDownBlock, \
+    AttentionDownBlock, \
+    AttentionUpBlock, \
+    TransformerPositionalEmbedding, \
+    ConvUpBlock
 
 
 class UNet(nn.Module):
@@ -17,6 +21,7 @@ class UNet(nn.Module):
         # between the convolutional blocks [https://arxiv.org/pdf/1712.09763.pdf]
         # 4. Diffusion time t is specified by adding the Transformer sinusoidal position embedding into
         # each residual block [https://arxiv.org/pdf/1706.03762.pdf]
+
         self.initial_conv = nn.Conv2d(in_channels=3, out_channels=128, kernel_size=3, stride=1, padding='same')
         self.positional_encoding = nn.Sequential(
             TransformerPositionalEmbedding(dimension=128),
@@ -26,23 +31,21 @@ class UNet(nn.Module):
         )
 
         self.downsample_blocks = nn.ModuleList([
-            ConvDownBlock(in_channels=128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128*4),                     # 256x256x128 -> 128x128x128
-            ConvDownBlock(in_channels=128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128*4),                     # 128x128x128 -> 64x64x128
-            ConvDownBlock(in_channels=128, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128*4),                     # 64x64x128 -> 32x32x256
-            # TODO implement Attention layer
-            #AttentionDownBlock(in_channels=256, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128*4),                # 32x32x256 -> 16x16x256
-            ConvDownBlock(in_channels=256, out_channels=256, num_layers=2, num_groups=32, downsample=True, time_emb_channels=128*4)     # 16x16x256 -> 16x16x256
+            ConvDownBlock(in_channels=128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128*4),                         # 256x256x128 -> 128x128x128
+            ConvDownBlock(in_channels=128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128*4),                         # 128x128x128 -> 64x64x128
+            ConvDownBlock(in_channels=128, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128*4),                         # 64x64x128 -> 32x32x256
+            AttentionDownBlock(in_channels=256, out_channels=256, num_layers=2, num_att_heads=4, num_groups=32, time_emb_channels=128*4),   # 32x32x256 -> 16x16x256
+            ConvDownBlock(in_channels=256, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128*4)                          # 16x16x256 -> 16x16x256
         ])
 
-        # TODO implement Bottleneck with Attention layer
-        self.bottleneck = ConvDownBlock(in_channels=256, out_channels=256, num_layers=1, num_groups=32, downsample=False, time_emb_channels=128*4) #Bottleneck()                                                                                                  # 16x16x256 -> 16x16x256
+        self.bottleneck = AttentionDownBlock(in_channels=256, out_channels=256, num_layers=2, num_att_heads=4, num_groups=32, time_emb_channels=128*4, downsample=False)                                                                                                  # 16x16x256 -> 16x16x256
 
         self.upsample_blocks = nn.ModuleList([
-            ConvUpBlock(in_channels=256 + 256, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128 * 4, upsample=True),
-            ConvUpBlock(in_channels=256 + 256, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128 * 4, upsample=True),
-            ConvUpBlock(in_channels=128 + 128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128 * 4, upsample=True),
-            # AttentionDownBlock(in_channels=256, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128*4),
-            ConvUpBlock(in_channels=128 + 128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128 * 4, upsample=True)
+            ConvUpBlock(in_channels=256 + 256, out_channels=256, num_layers=2, num_groups=32, time_emb_channels=128 * 4),
+            AttentionUpBlock(in_channels=256 + 256, out_channels=256, num_layers=2, num_att_heads=4, num_groups=32, time_emb_channels=128 * 4),
+            ConvUpBlock(in_channels=256 + 256, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128 * 4),
+            ConvUpBlock(in_channels=128 + 128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128 * 4),
+            ConvUpBlock(in_channels=128 + 128, out_channels=128, num_layers=2, num_groups=32, time_emb_channels=128 * 4)
         ])
 
         self.output_conv = nn.Sequential(
@@ -72,7 +75,7 @@ class UNet(nn.Module):
 
         # Concat initial_conv with tensor
         x = torch.cat([x, states_for_skip_connections[-1]], dim=1)
-        # Get initial shape with convolutions
+        # Get initial shape [3, 226, 226] with convolutions
         out = self.output_conv(x)
 
         return out
