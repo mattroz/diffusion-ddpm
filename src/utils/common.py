@@ -1,5 +1,10 @@
-from PIL import Image
+import torch
 
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+from PIL import Image
+from pathlib import Path
 
 def broadcast(values, broadcast_to):
     values = values.flatten()
@@ -24,3 +29,29 @@ def create_images_grid(images, rows, cols):
     for i, image in enumerate(images):
         grid.paste(image, box=(i % cols * w, i // cols * h))
     return grid
+
+
+def create_sampling_animation(model, pipeline, config):
+    # Sample some images from random noise (this is the backward diffusion process).
+    # The default pipeline output type is `List[PIL.Image]`
+    noisy_sample = torch.randn(
+        config.eval_batch_size,
+        config.input_channels,
+        config.image_size,
+        config.image_size).to(config.device)
+
+    # images is a list of num_timesteps images batches, e.g. List[Tensor(NCHW)]
+    images = pipeline.sampling(model, noisy_sample, device=config.device, save_all_steps=True)
+
+    fig = plt.figure()
+    ims = []
+    for i in range(pipeline.num_timesteps):
+        img = postprocess(images[i][0].unsqueeze(0))
+        img = Image.fromarray(img)
+        im = plt.imshow(img, animated=True)
+        ims.append([im])
+
+    animate = animation.ArtistAnimation(fig, ims, interval=5, blit=True, repeat_delay=1000)
+    path_to_save_animation = Path(config.output_dir, "samples", "diffusion.gif")
+    animate.save(str(path_to_save_animation))
+
