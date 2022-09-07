@@ -26,7 +26,7 @@ class TransformerPositionalEmbedding(nn.Module):
 
     def forward(self, timestep):
         # [bs, d_model]
-        return self.pe_matrix[timestep]
+        return self.pe_matrix[timestep].to(timestep.device)
 
 
 class ConvBlock(nn.Module):
