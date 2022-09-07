@@ -33,7 +33,8 @@ class DDPMPipeline:
         predicted_noise = model(noisy_images, timesteps)
         return predicted_noise
 
-    def sampling(self, model, initial_noise, mode='iterative'):
+    @torch.no_grad()
+    def sampling(self, model, initial_noise, device, save_all_steps=False):
         """
         Algorithm 2 from the paper https://arxiv.org/pdf/2006.11239.pdf
         Seems like we have two variations of sampling algorithm: iterative and with reparametrization trick (equation 15)
@@ -42,26 +43,31 @@ class DDPMPipeline:
 
         :param model:
         :param initial_noise:
-        :param mode:
+        :param device:
+        :param save_all_steps:
         :return:
         """
         image = initial_noise
+        images = []
         for timestep in tqdm(range(self.num_timesteps - 1, -1, -1)):
-            ts = torch.LongTensor([timestep]).to(model.device)
-            predicted_noise = model(image, ts)["sample"]
-            beta_t = self.betas[timestep].to(model.device)
-            alpha_t = self.alphas[timestep].to(model.device)
-            alpha_hat = self.alphas_hat[timestep].to(model.device)
+            # Broadcast timestep for batch_size
+            ts = timestep * torch.ones(image.shape[0], dtype=torch.long, device=device)
+            predicted_noise = model(image, ts)
+            beta_t = self.betas[timestep].to(device)
+            alpha_t = self.alphas[timestep].to(device)
+            alpha_hat = self.alphas_hat[timestep].to(device)
 
             # Algorithm 2, step 4: calculate x_{t-1} with alphas and variance.
             # Since paper says we can use fixed variance (section 3.2, in the beginning),
             # we will calculate the one which assumes we have x0 deterministically set to one point.
-            alpha_hat_prev = self.alphas_hat[timestep - 1].to(model.device)
+            alpha_hat_prev = self.alphas_hat[timestep - 1].to(device)
             beta_t_hat = (1 - alpha_hat_prev) / (1 - alpha_hat) * beta_t
-            variance = torch.sqrt(beta_t_hat) * torch.randn(image.shape).to(model.device) if timestep > 0 else 0
+            variance = torch.sqrt(beta_t_hat) * torch.randn(image.shape).to(device) if timestep > 0 else 0
 
             image = torch.pow(alpha_t, -0.5) * (image -
                                                 beta_t / torch.sqrt((1 - alpha_hat_prev)) *
                                                 predicted_noise) + variance
-        return image
+            if save_all_steps:
+                images.append(image.cpu())
+        return images if save_all_steps else image
 
