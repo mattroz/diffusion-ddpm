@@ -1,6 +1,8 @@
 # diffusion-DDPM
 PyTorch Implementation of "Denoising Diffusion Probabilistic Models", Ho et al., 2020
-![image](https://user-images.githubusercontent.com/8377365/188951630-d3e38fb0-9545-4208-bf3b-2296bde10864.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/8377365/188951630-d3e38fb0-9545-4208-bf3b-2296bde10864.png" />
+</p>
 
 ## Overview
 This repo is yet another denoising diffusion probabilistic model (DDPM) implementation. This repo tries to stick to the original paper as close as possible.
@@ -44,18 +46,25 @@ Training was performed on two datasets:
 ### 128×128 resolution
 All 128×128 models were trained for 300 epochs (72599 steps) with cosine annealing with initial learning rate set to 2e-4, batch size 6 and 1000 diffusion timesteps. 
 #### Training on smithsonian-butterflies-subset
+Epoch 4             |  Epoch 99
+:-------------------------:|:-------------------------:
+![0004](https://user-images.githubusercontent.com/8377365/189268993-97f7b8be-4ab0-4cc9-af46-87582bfad1b4.png)  |  ![0099](https://user-images.githubusercontent.com/8377365/189269009-49ee9a26-7c63-4bdf-b4d1-79d1e034cc12.png)
+Epoch 204             |  Epoch 300
+![0204](https://user-images.githubusercontent.com/8377365/189269020-c37756b6-0518-4b90-8d28-64d40eaedc0e.png)  |   ![0300](https://user-images.githubusercontent.com/8377365/189269042-19ac4e36-92c7-4141-b43a-d1b405ad108e.png)
+Sampling from the epoch=300 | Sampling from the epoch=300
+![diffusion1](https://user-images.githubusercontent.com/8377365/189269282-82b13b7b-eb6b-4746-8a63-6c6b06f40ebc.gif)  |   ![diffusion2](https://user-images.githubusercontent.com/8377365/189269404-59f205c5-95ff-4b4e-9447-e68409f61f9e.gif)
+
 #### Training on croupier-mtg-dataset
 Epoch 4             |  Epoch 99
 :-------------------------:|:-------------------------:
 ![0004](https://user-images.githubusercontent.com/8377365/189183793-c3da77ab-f306-4a94-bd5e-df500bfe3465.png)  |  ![0099](https://user-images.githubusercontent.com/8377365/189183825-37028de4-030b-4471-88e8-2d17094cec8a.png)
 Epoch 204             |  Epoch 300
 ![0204](https://user-images.githubusercontent.com/8377365/189183859-d70a572f-1027-4af5-948b-057c042ab508.png)  |  ![0300](https://user-images.githubusercontent.com/8377365/189183877-63a705da-1489-497f-9d8a-c8be9bdf0bdf.png)
-
+Sampling from the epoch=300 | Sampling from the epoch=300
+![diffusion1](https://user-images.githubusercontent.com/8377365/189268712-2cb1fd0c-b566-4058-893b-cbba2d949eb2.gif)   |   ![diffusion2](https://user-images.githubusercontent.com/8377365/189268713-da20e5fc-9ce5-45ce-977c-d6e1db35e090.gif)
 
 ### 256×256 resolution
 
 
 
 [TODO description]
-
-
