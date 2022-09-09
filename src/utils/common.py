@@ -31,7 +31,7 @@ def create_images_grid(images, rows, cols):
     return grid
 
 
-def create_sampling_animation(model, pipeline, config, interval=5):
+def create_sampling_animation(model, pipeline, config, interval=5, every_nth_image=1, rows=2, cols=3):
     # Sample some images from random noise (this is the backward diffusion process).
     # The default pipeline output type is `List[PIL.Image]`
     noisy_sample = torch.randn(
@@ -45,12 +45,13 @@ def create_sampling_animation(model, pipeline, config, interval=5):
 
     fig = plt.figure()
     ims = []
-    for i in range(pipeline.num_timesteps):
-        img = postprocess(images[i][0].unsqueeze(0))
-        img = Image.fromarray(img[0])
-        im = plt.imshow(img, animated=True)
+    for i in range(0, pipeline.num_timesteps, every_nth_image):
+        imgs = postprocess(images[i])
+        image_grid = create_images_grid(imgs, rows=rows, cols=cols)
+        im = plt.imshow(image_grid, animated=True)
         ims.append([im])
 
+    plt.axis('off')
     animate = animation.ArtistAnimation(fig, ims, interval=interval, blit=True, repeat_delay=5000)
     path_to_save_animation = Path(config.output_dir, "samples", "diffusion.gif")
     animate.save(str(path_to_save_animation))
