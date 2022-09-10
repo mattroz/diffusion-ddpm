@@ -44,8 +44,9 @@ Training was performed on two datasets:
 * [croupier-mtg-dataset](https://huggingface.co/datasets/alkzar90/croupier-mtg-dataset) by [alcazar90](https://github.com/alcazar90/croupier-mtg-dataset)
 
 ### 128×128 resolution
-All 128×128 models were trained for 300 epochs (72599 steps) with cosine annealing with initial learning rate set to 2e-4, batch size 6 and 1000 diffusion timesteps. 
+All 128×128 models were trained for 300 epochs with cosine annealing with initial learning rate set to 2e-4, batch size 6 and 1000 diffusion timesteps. 
 #### Training on smithsonian-butterflies-subset
+300 epochs, 50266 steps
 Epoch 4             |  Epoch 99
 :-------------------------:|:-------------------------:
 ![0004](https://user-images.githubusercontent.com/8377365/189268993-97f7b8be-4ab0-4cc9-af46-87582bfad1b4.png)  |  ![0099](https://user-images.githubusercontent.com/8377365/189269009-49ee9a26-7c63-4bdf-b4d1-79d1e034cc12.png)
@@ -55,6 +56,7 @@ Sampling from the epoch=300 | Sampling from the epoch=300
 ![diffusion1](https://user-images.githubusercontent.com/8377365/189269282-82b13b7b-eb6b-4746-8a63-6c6b06f40ebc.gif)  |   ![diffusion2](https://user-images.githubusercontent.com/8377365/189269404-59f205c5-95ff-4b4e-9447-e68409f61f9e.gif)
 
 #### Training on croupier-mtg-dataset
+300 epoch, 72599 steps
 Epoch 4             |  Epoch 99
 :-------------------------:|:-------------------------:
 ![0004](https://user-images.githubusercontent.com/8377365/189183793-c3da77ab-f306-4a94-bd5e-df500bfe3465.png)  |  ![0099](https://user-images.githubusercontent.com/8377365/189183825-37028de4-030b-4471-88e8-2d17094cec8a.png)
@@ -64,7 +66,13 @@ Sampling from the epoch=300 | Sampling from the epoch=300
 ![diffusion1](https://user-images.githubusercontent.com/8377365/189268712-2cb1fd0c-b566-4058-893b-cbba2d949eb2.gif)   |   ![diffusion2](https://user-images.githubusercontent.com/8377365/189268713-da20e5fc-9ce5-45ce-977c-d6e1db35e090.gif)
 
 ### 256×256 resolution
-
-
+All 256×256 models were trained for 300 epochs with cosine annealing with initial learning rate set to 2e-5, batch size 6 and 1000 diffusion timesteps.
+#### Training on smithsonian-butterflies-subset
+300 epochs, 50266 steps
+Epoch 4             |  Epoch 100
+:-------------------------:|:-------------------------:
+![0004](https://user-images.githubusercontent.com/8377365/189496165-84d677b0-8b13-4eb1-a6d6-09879db11fc1.png)  |  ![0100](https://user-images.githubusercontent.com/8377365/189496166-286aedb5-7b5e-4317-9cab-cd0cf94487b3.png)
+Epoch 205           |  Epoch 300
+![0205](https://user-images.githubusercontent.com/8377365/189496168-58933a78-f276-4d6b-8ee3-8a5d94db7b9d.png)  |  ![0300](https://user-images.githubusercontent.com/8377365/189496174-2bfc2d75-6e0e-493b-ab8f-215c25a5175a.png)
 
 [TODO description]
