@@ -15,8 +15,8 @@ Some equations are borrowed from [this](https://lilianweng.github.io/posts/2021-
 ## Diffusion process
 Diffusion process was implemented as a part of a class called [DDPMPipeline](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L9), which containes forward $q(x_t \vert x_{t-1})$ and backward $p_\theta(x_{t-1} \vert x_t)$ diffusion processes.
 
-Backward diffusion process [applies Gaussian noise](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L21) to the input image in a scheduleded manner. 
-Forward diffusion process is a process which "denoises" an image using model predictions. It is worth to mention, that UNet model in this particular process predicts some kind of noise residual, and the final "denoised" image is obtained by [applying the following equation](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L67): 
+Forward diffusion process [applies Gaussian noise](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L21) to the input image in a scheduleded manner. 
+Backwrd diffusion process is a process which "denoises" an image using model predictions. It is worth to mention, that UNet model in this particular process predicts some kind of noise residual, and the final "denoised" image is obtained by [applying the following equation](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L67): 
 $$x_{t-1} = \frac{1}{\sqrt{\alpha_t}}(x_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}}\epsilon(x_t,t)) + \sigma_tz$$
 
 Here, $\epsilon$ is the UNet model, $\alpha_t$, $\bar{\alpha}_t$ [are precomputed](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L13) and $\sigma_t$ is [calculated](https://github.com/mattroz/diffusion-ddpm/blob/main/src/scheduler/ddpm.py#L65) using these precomputed values at forward diffusion step.
